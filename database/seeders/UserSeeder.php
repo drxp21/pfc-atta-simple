@@ -16,39 +16,71 @@ class UserSeeder extends Seeder
     {
         // Récupérer les départements
         $departements = Departement::all();
-        
+
         // Créer un administrateur
         User::create([
-            'nom' => 'Admin',
-            'prenom' => 'System',
-            'email' => 'admin@universite.edu',
+            'nom' => 'Ndiaye',
+            'prenom' => 'Aminata',
+            'email' => 'admin@univ-thies.sn',
             'password' => Hash::make('password'),
-            'telephone' => '123456789',
+            'telephone' => '771234567',
             'type_personnel' => 'ADMIN',
             'departement_id' => null,
         ]);
-        
-        // Créer 10 PER (Personnel Enseignant-Chercheur)
-        for ($i = 1; $i <= 10; $i++) {
+
+        // Liste de noms et prénoms sénégalais réalistes
+        $noms = ['Diop', 'Ndiaye', 'Gueye', 'Sy', 'Diouf', 'Fall', 'Sow', 'Kane', 'Ba', 'Niang'];
+        $prenomsMasculins = ['Mamadou', 'Ibrahima', 'Abdoulaye', 'Moussa', 'Cheikh', 'Modou', 'Pape', 'Moustapha', 'Ousmane', 'Samba'];
+        $prenomsFeminins = ['Aminata', 'Aissatou', 'Fatou', 'Mariama', 'Rokhaya', 'Awa', 'Khadidiatou', 'Sokhna', 'Ndèye', 'Mame'];
+
+        // Créer 15 PER (Personnel Enseignant-Chercheur)
+        for ($i = 1; $i <= 15; $i++) {
+            $estFeminin = rand(0, 1);
+            $prenom = $estFeminin
+                ? $prenomsFeminins[array_rand($prenomsFeminins)]
+                : $prenomsMasculins[array_rand($prenomsMasculins)];
+
+            $nom = $noms[array_rand($noms)];
+            $email = strtolower('per' . $i . '@univ-thies.sn');
+
             User::create([
-                'nom' => 'Mansour',
-                'prenom' => 'Diouf',
-                'email' => 'mansour.diouf@univ-thies.sn',
+                'nom' => $nom,
+                'prenom' => $prenom,
+                'email' => $email,
                 'password' => Hash::make('password'),
-                'telephone' => '1234567' . $i,
+                'telephone' => '77' . rand(1000000, 9999999),
                 'type_personnel' => 'PER',
                 'departement_id' => $departements->random()->id,
             ]);
         }
-        
-        // Créer 5 PATS (Personnel Administratif, Technique et de Service)
-        for ($i = 1; $i <= 5; $i++) {
+
+        // Créer 10 PATS (Personnel Administratif, Technique et de Service)
+        $postesPATS = [
+            'Secrétaire',
+            'Comptable',
+            'Responsable RH',
+            'Technicien informatique',
+            'Agent administratif',
+            'Bibliothécaire',
+            'Assistant administratif',
+            'Agent de sécurité'
+        ];
+
+        for ($i = 1; $i <= 10; $i++) {
+            $estFeminin = rand(0, 1);
+            $prenom = $estFeminin
+                ? $prenomsFeminins[array_rand($prenomsFeminins)]
+                : $prenomsMasculins[array_rand($prenomsMasculins)];
+
+            $nom = $noms[array_rand($noms)];
+            $email = strtolower('pats.' . $prenom[0] . $nom . $i) . '@univ-thies.sn';
+
             User::create([
-                'nom' => 'Personnel' . $i,
-                'prenom' => 'Admin' . $i,
-                'email' => 'pats' . $i . '@universite.edu',
+                'nom' => $nom,
+                'prenom' => $prenom,
+                'email' => $email,
                 'password' => Hash::make('password'),
-                'telephone' => '9876543' . $i,
+                'telephone' => '76' . rand(1000000, 9999999),
                 'type_personnel' => 'PATS',
                 'departement_id' => $departements->random()->id,
             ]);

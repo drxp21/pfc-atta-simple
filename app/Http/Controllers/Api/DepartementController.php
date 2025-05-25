@@ -17,24 +17,9 @@ class DepartementController extends Controller
     public function index()
     {
         $departements = Departement::all();
-        return response()->json([
-            'data' => $departements->items(),
-            'links' => [
-                'first' => $departements->url(1),
-                'last' => $departements->url($departements->lastPage()),
-                'prev' => $departements->previousPageUrl(),
-                'next' => $departements->nextPageUrl(),
-            ],
-            'meta' => [
-                'current_page' => $departements->currentPage(),
-                'from' => $departements->firstItem(),
-                'last_page' => $departements->lastPage(),
-                'path' => $departements->path(),
-                'per_page' => $departements->perPage(),
-                'to' => $departements->lastItem(),
-                'total' => $departements->total(),
-            ],
-        ]);
+        return response()->json(
+            $departements,
+        );
     }
 
     /**

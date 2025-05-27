@@ -50,7 +50,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'telephone' => '77' . rand(1000000, 9999999),
                 'type_personnel' => 'PER',
-                'departement_id' => $departements->random()->id,
+                'departement_id' => 1,
             ]);
         }
 
@@ -82,7 +82,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'telephone' => '76' . rand(1000000, 9999999),
                 'type_personnel' => 'PATS',
-                'departement_id' => $departements->random()->id,
+                'departement_id' => 1,
             ]);
         }
     }

@@ -27,7 +27,7 @@ class ProcesVerbal extends Model
         'nb_electeurs_inscrits',
         'nb_votes_exprimes',
         'nb_votes_blancs',
-        'nb_abstentions',
+        
         'date_generation',
         'genere_par',
     ];
@@ -41,7 +41,7 @@ class ProcesVerbal extends Model
         'nb_electeurs_inscrits' => 'integer',
         'nb_votes_exprimes' => 'integer',
         'nb_votes_blancs' => 'integer',
-        'nb_abstentions' => 'integer',
+        
         'date_generation' => 'datetime',
     ];
 

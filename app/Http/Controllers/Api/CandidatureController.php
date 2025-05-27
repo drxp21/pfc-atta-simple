@@ -93,16 +93,6 @@ class CandidatureController extends Controller
             ], 422);
         }
 
-        // Pour les élections de type CHEF_DEPARTEMENT et DIRECTEUR_UFR, vérifier si le candidat appartient au département
-        if (
-            in_array($election->type_election, ['CHEF_DEPARTEMENT', 'DIRECTEUR_UFR']) &&
-            $request->user()->departement_id !== $election->departement_id
-        ) {
-            return response()->json([
-                'message' => 'Vous ne pouvez pas candidater à cette élection car vous n\'appartenez pas au département concerné'
-            ], 403);
-        }
-
         $candidature = Candidature::create([
             'election_id' => $request->election_id,
             'candidat_id' => $request->user()->id,
@@ -243,7 +233,7 @@ class CandidatureController extends Controller
 
     public function ownCandidature(Request $request)
     {
-        return response()->json($request->user()->candidatures);
+        return response()->json($request->user()->candidatures()->with('election')->get());
     }
 
     public function pending()

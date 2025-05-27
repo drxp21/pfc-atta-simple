@@ -18,7 +18,6 @@ return new class extends Migration
             $table->integer('nb_electeurs_inscrits')->default(0);
             $table->integer('nb_votes_exprimes')->default(0);
             $table->integer('nb_votes_blancs')->default(0);
-            $table->integer('nb_abstentions')->default(0);
             $table->dateTime('date_generation');
             $table->foreignId('genere_par')->constrained('users');
             $table->timestamps();

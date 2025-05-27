@@ -100,7 +100,7 @@ class ProcesVerbalController extends Controller
             'nb_electeurs_inscrits' => $nbElecteursInscrits,
             'nb_votes_exprimes' => $nbVotesExprimes,
             'nb_votes_blancs' => $nbVotesBlancs,
-            'nb_abstentions' => $nbAbstentions,
+            
             'date_generation' => Carbon::now(),
             'genere_par' => $request->user()->id,
         ]);

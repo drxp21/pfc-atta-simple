@@ -46,7 +46,7 @@ class ResultatController extends Controller
                 'nb_electeurs_inscrits' => $nbElecteursInscrits,
                 'nb_votes_exprimes' => $nbVotesExprimes,
                 'nb_votes_blancs' => $nbVotesBlancs,
-                'nb_abstentions' => $nbAbstentions,
+                
                 'taux_participation' => $tauxParticipation,
             ]
         ]);
@@ -120,7 +120,7 @@ class ResultatController extends Controller
 
         // Enregistrer les résultats
         foreach ($resultats as $resultat) {
-            Resultat::create([
+            Resultat::updateOrCreate([
                 'election_id' => $election->id,
                 'candidature_id' => $resultat['candidature_id'],
                 'nb_voix' => $resultat['nb_voix'],
@@ -139,7 +139,6 @@ class ResultatController extends Controller
                 'nb_electeurs_inscrits' => $nbElecteursInscrits,
                 'nb_votes_exprimes' => $nbVotesExprimes,
                 'nb_votes_blancs' => $nbVotesBlancs,
-                'nb_abstentions' => $nbElecteursInscrits - $nbVotesExprimes,
                 'taux_participation' => $nbElecteursInscrits > 0 ? round(($nbVotesExprimes / $nbElecteursInscrits) * 100, 2) : 0,
             ]
         ]);

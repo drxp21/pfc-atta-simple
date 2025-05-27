@@ -37,6 +37,21 @@ class ElectionController extends Controller
 
         $elections = $query->orderBy('created_at', 'desc')->get();
 
+        $elections = $query
+            ->orderByRaw("
+        CASE statut
+            WHEN 'OUVERTE' THEN 0
+            WHEN 'FERMEE' THEN 1
+            WHEN 'EN_COURS' THEN 2
+            ELSE 3
+        END
+    ")
+            ->orderBy('created_at', 'desc')
+            ->with('candidatures')
+            ->get();
+
+
+
         return response()->json([
             'data' => $elections,
         ]);
@@ -226,6 +241,8 @@ class ElectionController extends Controller
 
         // Mettre à jour le statut
         $election->update(['statut' => 'FERMEE']);
+
+        app()->make(ResultatController::class)->calculer($election);
 
         return response()->json([
             'message' => 'Élection fermée avec succès',

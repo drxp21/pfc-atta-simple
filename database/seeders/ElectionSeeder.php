@@ -61,7 +61,7 @@ class ElectionSeeder extends Seeder
             'description' => "Élection pour le poste de Directeur de l'UFR des Sciences Appliquées et de Technologie pour le mandat 2024-2027.",
             'type_election' => 'DIRECTEUR_UFR',
             'statut' => 'OUVERTE', // En période de candidature
-            'departement_id' => $departements->first()->id, // Associer à un département arbitraire
+            'departement_id' => 1, // Associer à un département arbitraire
             'date_debut_candidature' => $dateDebutCandidature,
             'date_fin_candidature' => $dateFinCandidature,
             'date_debut_vote' => $dateDebutVote,
@@ -82,7 +82,7 @@ class ElectionSeeder extends Seeder
             'description' => "Élection pour le poste de Vice-Recteur de l'Université de Thiès pour le mandat 2024-2027.",
             'type_election' => 'VICE_RECTEUR',
             'statut' => 'EN_COURS', // En cours de vote
-            'departement_id' => $departements->first()->id, // Associer à un département arbitraire
+            'departement_id' => 1, // Associer à un département arbitraire
             'date_debut_candidature' => $dateDebutCandidature,
             'date_fin_candidature' => $dateFinCandidature,
             'date_debut_vote' => $dateDebutVote,
@@ -103,7 +103,7 @@ class ElectionSeeder extends Seeder
             'description' => "Élection pour le poste de Vice-Recteur de l'Université de Thiès pour le mandat 2023-2024.",
             'type_election' => 'VICE_RECTEUR',
             'statut' => 'FERMEE', // Élection terminée
-            'departement_id' => $departements->first()->id,
+            'departement_id' => 1,
             'date_debut_candidature' => $dateDebutCandidature,
             'date_fin_candidature' => $dateFinCandidature,
             'date_debut_vote' => $dateDebutVote,

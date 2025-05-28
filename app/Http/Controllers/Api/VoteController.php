@@ -62,9 +62,58 @@ class VoteController extends Controller
             ], 422);
         }
 
+        // Récupérer l'électeur authentifié
+        $electeur = auth()->user();
+        if (!$electeur) {
+            return response()->json(['message' => 'Utilisateur non authentifié'], 401);
+        }
+        // Charger le département de l'électeur s'il existe pour les vérifications
+        $electeur->load('departement');
 
+        // Nouvelles règles de vérification du droit de vote
+        $typeElection = $election->type_election;
+        $userType = $electeur->type_personnel;
+        $userDepartementId = $electeur->departement_id;
+        $electionDepartementId = $election->departement_id;
 
+        $canVote = false;
+        $errorMessage = 'Vous n\'êtes pas autorisé à voter pour cette élection.';
 
+        switch ($typeElection) {
+            case 'CHEF_DEPARTEMENT':
+                if ($userType === 'PER' && $userDepartementId === $electionDepartementId) {
+                    $canVote = true;
+                } else {
+                    $errorMessage = 'Seuls les PER de ce département peuvent voter pour l\'élection du Chef de Département.';
+                }
+                break;
+            case 'DIRECTEUR_UFR':
+                // En supposant que $election->departement_id fait référence à l'UFR pour ce type d'élection
+                // et que les PER de cet "UFR/département" peuvent voter.
+                // Si la logique est que les PER de TOUS les départements d'une UFR peuvent voter,
+                // la structure de la base de données (liaison Département <-> UFR) devrait être différente.
+                // Pour l'instant, on se base sur $election->departement_id.
+                if ($userType === 'PER' && $userDepartementId === $electionDepartementId) {
+                    $canVote = true;
+                } else {
+                $errorMessage = 'Seuls les PER de cette UFR peuvent voter pour l\'élection du Directeur d\'UFR.';
+                }
+                break;
+            case 'VICE_RECTEUR':
+                if ($userType === 'PER' || $userType === 'PATS') {
+                    $canVote = true;
+                } else {
+                    $errorMessage = 'Seuls les PER et PATS peuvent voter pour l\'élection du Vice-Recteur.';
+                }
+                break;
+            default:
+                // Type d'élection non géré ou inconnu
+                return response()->json(['message' => 'Type d\'élection non supporté pour la vérification des droits de vote'], 500);
+        }
+
+        if (!$canVote) {
+            return response()->json(['message' => $errorMessage], 403); // 403 Forbidden
+        }
 
         // Vérifier si l'utilisateur a déjà voté
         if (

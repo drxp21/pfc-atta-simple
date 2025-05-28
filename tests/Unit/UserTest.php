@@ -13,7 +13,7 @@ class UserTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_can_create_a_user()
     {
         $user = User::create([
@@ -33,7 +33,7 @@ class UserTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_has_departement_relationship()
     {
         $departement = Departement::create([
@@ -54,7 +54,7 @@ class UserTest extends TestCase
         $this->assertEquals('Informatique Test', $user->departement->nom);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_has_nom_complet_accessor()
     {
         $user = User::create([
@@ -68,7 +68,7 @@ class UserTest extends TestCase
         $this->assertEquals('John Doe', $user->nom_complet);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_has_is_per_accessor()
     {
         $perUser = User::create([

@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Candidature;
+use App\Models\Departement;
 use App\Models\Election;
-use App\Models\ElecteurAutorise;
 use App\Models\Resultat;
+use App\Models\User;
 use App\Models\Vote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -34,7 +35,7 @@ class ResultatController extends Controller
             ->get();
 
         // Statistiques
-        $nbElecteursInscrits = ElecteurAutorise::where('election_id', $election->id)->count();
+        $nbElecteursInscrits = $this->getNbElecteursPotentiels($election);
         $nbVotesExprimes = Vote::where('election_id', $election->id)->count();
         $nbVotesBlancs = Vote::where('election_id', $election->id)->where('vote_blanc', true)->count();
         $nbAbstentions = $nbElecteursInscrits - $nbVotesExprimes;
@@ -76,7 +77,7 @@ class ResultatController extends Controller
             ->get();
 
         // Compter les votes pour chaque candidature
-        $nbElecteursInscrits = ElecteurAutorise::where('election_id', $election->id)->count();
+        $nbElecteursInscrits = $this->getNbElecteursPotentiels($election);
         $nbVotesExprimes = Vote::where('election_id', $election->id)->count();
         $nbVotesBlancs = Vote::where('election_id', $election->id)->where('vote_blanc', true)->count();
         $nbVotesValides = $nbVotesExprimes - $nbVotesBlancs;
@@ -142,5 +143,35 @@ class ResultatController extends Controller
                 'taux_participation' => $nbElecteursInscrits > 0 ? round(($nbVotesExprimes / $nbElecteursInscrits) * 100, 2) : 0,
             ]
         ]);
+    }
+    
+    /**
+     * Calculer le nombre d'électeurs potentiels pour une élection
+     *
+     * @param  \App\Models\Election  $election
+     * @return int
+     */
+    private function getNbElecteursPotentiels(Election $election)
+    {
+        // Calculer le nombre d'électeurs potentiels selon le type d'élection
+        if ($election->type_election === 'CHEF_DEPARTEMENT') {
+            // PER du département
+            return User::where('type_personnel', 'PER')
+                ->where('departement_id', $election->departement_id)
+                ->count();
+        } elseif ($election->type_election === 'DIRECTEUR_UFR') {
+            // PER de l'UFR (tous les départements de l'UFR)
+            $departementsIds = Departement::where('ufr_id', $election->departement->ufr_id)
+                ->pluck('id')
+                ->toArray();
+            return User::where('type_personnel', 'PER')
+                ->whereIn('departement_id', $departementsIds)
+                ->count();
+        } elseif ($election->type_election === 'VICE_RECTEUR') {
+            // PER + PATS
+            return User::whereIn('type_personnel', ['PER', 'PATS'])->count();
+        }
+        
+        return 0;
     }
 }

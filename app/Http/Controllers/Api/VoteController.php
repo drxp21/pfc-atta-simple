@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Candidature;
 use App\Models\Election;
-use App\Models\ElecteurAutorise;
 use App\Models\Vote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -96,7 +95,7 @@ class VoteController extends Controller
                 if ($userType === 'PER' && $userDepartementId === $electionDepartementId) {
                     $canVote = true;
                 } else {
-                $errorMessage = 'Seuls les PER de cette UFR peuvent voter pour l\'élection du Directeur d\'UFR.';
+                    $errorMessage = 'Seuls les PER de cette UFR peuvent voter pour l\'élection du Directeur d\'UFR.';
                 }
                 break;
             case 'VICE_RECTEUR':

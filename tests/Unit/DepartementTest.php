@@ -11,7 +11,7 @@ class DepartementTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_can_create_a_departement()
     {
         $departement = Departement::create([
@@ -25,7 +25,7 @@ class DepartementTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_has_users_relationship()
     {
         $departement = Departement::create([
@@ -46,7 +46,7 @@ class DepartementTest extends TestCase
         $this->assertEquals(1, $departement->users->count());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_enforces_unique_nom_constraint()
     {
         Departement::create([
@@ -62,7 +62,7 @@ class DepartementTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_enforces_unique_code_constraint()
     {
         Departement::create([

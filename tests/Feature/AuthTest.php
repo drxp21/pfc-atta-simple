@@ -11,7 +11,7 @@ class AuthTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function user_can_register()
     {
         $departement = Departement::create([
@@ -48,7 +48,7 @@ class AuthTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function user_can_login()
     {
         $user = User::create([
@@ -74,7 +74,7 @@ class AuthTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function user_cannot_login_with_invalid_credentials()
     {
         $user = User::create([
@@ -96,7 +96,7 @@ class AuthTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function user_can_logout()
     {
         $user = User::create([
@@ -121,7 +121,7 @@ class AuthTest extends TestCase
         $this->assertDatabaseCount('personal_access_tokens', 0);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function user_can_get_their_profile()
     {
         $user = User::create([

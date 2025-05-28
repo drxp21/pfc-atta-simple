@@ -73,7 +73,7 @@ class UserSeeder extends Seeder
                 : $prenomsMasculins[array_rand($prenomsMasculins)];
 
             $nom = $noms[array_rand($noms)];
-            $email = strtolower('pats.' . $prenom[0] . $nom . $i) . '@univ-thies.sn';
+            $email = strtolower('pats'. $i) . '@univ-thies.sn';
 
             User::create([
                 'nom' => $nom,

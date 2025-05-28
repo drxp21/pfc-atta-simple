@@ -84,12 +84,12 @@ class User extends Authenticatable
     }
     
     /**
-     * Relation avec les élections autorisées
+     * Relation avec les élections votées
      */
-    public function electionsAutorisees()
+    public function electionsVotees()
     {
-        return $this->belongsToMany(Election::class, 'electeurs_autorises', 'electeur_id', 'election_id')
-                    ->withPivot('a_vote', 'date_autorisation')
+        return $this->belongsToMany(Election::class, 'votes', 'electeur_id', 'election_id')
+                    ->withPivot('vote_blanc', 'date_vote')
                     ->withTimestamps();
     }
     

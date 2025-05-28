@@ -11,7 +11,7 @@ class DepartementTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function authenticated_user_can_get_all_departements()
     {
         $user = User::create([
@@ -37,17 +37,20 @@ class DepartementTest extends TestCase
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
             ->getJson('/api/departements');
 
+            
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'data' => [
-                    '*' => ['id', 'nom', 'code', 'created_at', 'updated_at']
-                ],
-                'links',
-                'meta'
+                '*' => [
+                    'id',
+                    'nom',
+                    'code', 
+                    'created_at',
+                    'updated_at'
+                ]
             ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function authenticated_user_can_create_departement()
     {
         $user = User::create([
@@ -78,7 +81,7 @@ class DepartementTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function authenticated_user_can_get_single_departement()
     {
         $user = User::create([
@@ -107,7 +110,7 @@ class DepartementTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function authenticated_user_can_update_departement()
     {
         $user = User::create([
@@ -145,7 +148,7 @@ class DepartementTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function authenticated_user_can_delete_departement()
     {
         $user = User::create([
@@ -176,7 +179,7 @@ class DepartementTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function cannot_delete_departement_with_users()
     {
         $departement = Departement::create([

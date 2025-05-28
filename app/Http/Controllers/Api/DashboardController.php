@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Candidature;
+use App\Models\Departement;
 use App\Models\Election;
-use App\Models\ElecteurAutorise;
+use App\Models\User;
 use App\Models\Vote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -19,88 +21,103 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        // Nombre d'élections par statut
-        $electionsParStatut = Election::select('statut', DB::raw('count(*) as total'))
-            ->groupBy('statut')
+        Carbon::setLocale('fr');
+        // Quick Stats
+        $ongoingElectionsCount = Election::where('statut', 'EN_COURS')->count();
+        $activeCandidacyCount = Candidature::where('statut', 'VALIDEE') // Assuming 'VALIDEE' means active
+            ->whereHas('election', function ($query) {
+                $query->where('statut', 'OUVERTE'); // Only for elections where candidature is open
+            })
+            ->count();
+        $votesCastCount = Vote::count();
+
+        // Upcoming Elections (status 'OUVERTE' or 'BROUILLON' and date_debut_vote in the future)
+        $upcomingElections = Election::whereIn('statut', ['OUVERTE', 'BROUILLON'])
+            ->where('date_debut_vote', '>', Carbon::now())
+            ->orderBy('date_debut_vote', 'asc')
+            ->take(3)
             ->get()
-            ->pluck('total', 'statut')
-            ->toArray();
-        
-        // S'assurer que tous les statuts sont présents
-        $statutsElection = ['BROUILLON', 'OUVERTE', 'EN_COURS', 'FERMEE'];
-        foreach ($statutsElection as $statut) {
-            if (!isset($electionsParStatut[$statut])) {
-                $electionsParStatut[$statut] = 0;
-            }
-        }
-        
-        // Nombre de candidatures par statut
-        $candidaturesParStatut = Candidature::select('statut', DB::raw('count(*) as total'))
-            ->groupBy('statut')
+            ->map(function ($election) {
+                return [
+                    'id' => $election->id, // Assuming you want the model ID
+                    'title' => $election->titre,
+                    'startDate' => Carbon::parse($election->date_debut_vote)->isoFormat('D MMMM YYYY'),
+                    'detailsLink' => '/dashboard/elections/election/' . $election->id, // Generic link
+                ];
+            });
+
+        // Recent Activities (combining votes, candidacies, and election results/status changes)
+        // This is a simplified version. You might need a more sophisticated way to track "activities"
+        // For example, creating an "Activity" model or using a notification system.
+
+        $recentVotes = Vote::with('election')
+            ->orderBy('date_vote', 'desc')
+            ->take(2) // Adjust as needed
             ->get()
-            ->pluck('total', 'statut')
-            ->toArray();
-        
-        // S'assurer que tous les statuts sont présents
-        $statutsCandidature = ['EN_ATTENTE', 'VALIDEE', 'REJETEE'];
-        foreach ($statutsCandidature as $statut) {
-            if (!isset($candidaturesParStatut[$statut])) {
-                $candidaturesParStatut[$statut] = 0;
-            }
-        }
-        
-        // Taux de participation global
-        $nbElecteursInscrits = ElecteurAutorise::count();
-        $nbElecteursAyantVote = ElecteurAutorise::where('a_vote', true)->count();
-        $tauxParticipationGlobal = $nbElecteursInscrits > 0 
-            ? round(($nbElecteursAyantVote / $nbElecteursInscrits) * 100, 2) 
-            : 0;
-        
-        // Taux de participation par élection (pour les élections en cours ou fermées)
-        $tauxParticipationParElection = [];
-        $electionsAvecVotes = Election::whereIn('statut', ['EN_COURS', 'FERMEE'])->get();
-        
-        foreach ($electionsAvecVotes as $election) {
-            $nbInscrits = ElecteurAutorise::where('election_id', $election->id)->count();
-            $nbAyantVote = ElecteurAutorise::where('election_id', $election->id)
-                ->where('a_vote', true)
-                ->count();
-            
-            $tauxParticipationParElection[] = [
-                'election_id' => $election->id,
-                'titre' => $election->titre,
-                'statut' => $election->statut,
-                'nb_inscrits' => $nbInscrits,
-                'nb_ayant_vote' => $nbAyantVote,
-                'taux_participation' => $nbInscrits > 0 
-                    ? round(($nbAyantVote / $nbInscrits) * 100, 2) 
-                    : 0,
-            ];
-        }
-        
-        // Élections récentes
-        $electionsRecentes = Election::with(['departement', 'createdBy'])
-            ->orderBy('created_at', 'desc')
-            ->take(5)
-            ->get();
-        
-        // Candidatures récentes
-        $candidaturesRecentes = Candidature::with(['election', 'candidat'])
+            ->map(function ($vote) {
+                return [
+                    'id' => 'vote_' . $vote->id,
+                    'icon' => '✓',
+                    'description' => 'Vote effectué - ' . $vote->election->titre,
+                    'dateRelative' => Carbon::parse($vote->date_vote)->diffForHumans(),
+                    'timestamp' => Carbon::parse($vote->date_vote)->timestamp,
+                ];
+            });
+
+        $recentCandidatures = Candidature::with('election')
             ->orderBy('date_soumission', 'desc')
-            ->take(5)
-            ->get();
-        
+            ->take(2) // Adjust as needed
+            ->get()
+            ->map(function ($candidature) {
+                return [
+                    'id' => 'candidacy_' . $candidature->id,
+                    'icon' => '📝',
+                    'description' => 'Candidature soumise - ' . $candidature->election->titre,
+                    'dateRelative' => Carbon::parse($candidature->date_soumission)->diffForHumans(),
+                    'timestamp' => Carbon::parse($candidature->date_soumission)->timestamp,
+                ];
+            });
+
+        // Example: Recent election status changes (e.g., an election became 'FERMEE')
+        // This requires tracking when the status changed, which might not be directly available
+        // on the Election model without a dedicated 'status_updated_at' or similar field.
+        // For this example, I'll use 'updated_at' for elections that are 'FERMEE'
+        // and assume 'updated_at' reflects the closure time.
+        $recentResults = Election::where('statut', 'FERMEE')
+            ->orderBy('updated_at', 'desc') // Assuming updated_at reflects when it was closed
+            ->take(1) // Adjust as needed
+            ->get()
+            ->map(function ($election) {
+                return [
+                    'id' => 'results_' . $election->id,
+                    'icon' => '📊',
+                    'description' => 'Résultats publiés - ' . $election->titre, // Or "Election fermée"
+                    'dateRelative' => Carbon::parse($election->updated_at)->diffForHumans(),
+                    'timestamp' => Carbon::parse($election->updated_at)->timestamp,
+                ];
+            });
+
+        $recentActivities = collect()
+            ->merge($recentVotes)
+            ->merge($recentCandidatures)
+            ->merge($recentResults)
+            ->sortByDesc('timestamp') // Sort all activities by their actual timestamp
+            ->take(3) // Take the most recent 3 overall
+            ->map(function ($activity) { // Remove the temporary timestamp
+                unset($activity['timestamp']);
+                return $activity;
+            })
+            ->values(); // Re-index the array
+
+
         return response()->json([
-            'elections_par_statut' => $electionsParStatut,
-            'candidatures_par_statut' => $candidaturesParStatut,
-            'taux_participation_global' => [
-                'nb_inscrits' => $nbElecteursInscrits,
-                'nb_ayant_vote' => $nbElecteursAyantVote,
-                'taux_participation' => $tauxParticipationGlobal,
+            'quickStats' => [
+                'ongoingElectionsCount' => $ongoingElectionsCount,
+                'activeCandidacyCount' => $activeCandidacyCount,
+                'votesCastCount' => $votesCastCount,
             ],
-            'taux_participation_par_election' => $tauxParticipationParElection,
-            'elections_recentes' => $electionsRecentes,
-            'candidatures_recentes' => $candidaturesRecentes,
+            'upcomingElections' => $upcomingElections,
+            'recentActivities' => $recentActivities,
         ]);
     }
 }

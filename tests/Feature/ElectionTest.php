@@ -13,7 +13,7 @@ class ElectionTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function authenticated_user_can_get_all_elections()
     {
         $departement = Departement::create([
@@ -60,22 +60,49 @@ class ElectionTest extends TestCase
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
             ->getJson('/api/elections');
-
-        $response->assertStatus(200)
+        
+            $response->assertStatus(200)
             ->assertJsonStructure([
                 'data' => [
                     '*' => [
-                        'id', 'titre', 'description', 'type_election', 'statut', 
-                        'departement_id', 'date_debut_candidature', 'date_fin_candidature', 
-                        'date_debut_vote', 'date_fin_vote', 'created_by', 'created_at', 'updated_at'
+                        'id',
+                        'titre',
+                        'description',
+                        'type_election',
+                        'statut',
+                        'departement_id',
+                        'date_debut_candidature',
+                        'date_fin_candidature',
+                        'date_debut_vote',
+                        'date_fin_vote',
+                        'created_by' => [
+                            'id',
+                            'nom',
+                            'email',
+                            'email_verified_at',
+                            'created_at',
+                            'updated_at',
+                            'prenom',
+                            'telephone',
+                            'type_personnel',
+                            'departement_id'
+                        ],
+                        'created_at',
+                        'updated_at',
+                        'departement' => [
+                            'id',
+                            'nom',
+                            'code',
+                            'created_at',
+                            'updated_at'
+                        ],
+                        'candidatures'
                     ]
-                ],
-                'links',
-                'meta'
+                ]
             ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function authenticated_user_can_create_election()
     {
         $departement = Departement::create([
@@ -123,7 +150,7 @@ class ElectionTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function authenticated_user_can_get_single_election()
     {
         $departement = Departement::create([
@@ -168,7 +195,7 @@ class ElectionTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function authenticated_user_can_update_election_in_brouillon()
     {
         $departement = Departement::create([
@@ -226,7 +253,7 @@ class ElectionTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function cannot_update_election_not_in_brouillon()
     {
         $departement = Departement::create([
@@ -276,7 +303,7 @@ class ElectionTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function authenticated_user_can_open_election()
     {
         $departement = Departement::create([

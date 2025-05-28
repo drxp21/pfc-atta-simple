@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Election;
-use App\Models\ElecteurAutorise;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -47,7 +46,7 @@ class ElectionController extends Controller
         END
     ")
             ->orderBy('created_at', 'desc')
-            ->with('candidatures')
+            ->with('candidatures.candidat')
             ->get();
 
 
@@ -113,7 +112,13 @@ class ElectionController extends Controller
      */
     public function show(Election $election)
     {
-        return response()->json($election->load(['departement', 'createdBy', 'candidatures.candidat']));
+        return response()->json($election->load([
+            'departement',
+            'createdBy',
+            'candidatures' => function ($query) {
+                $query->where('statut', 'VALIDEE')->with('candidat');
+            }
+        ]));
     }
 
     /**
@@ -215,9 +220,6 @@ class ElectionController extends Controller
         // Mettre à jour le statut
         $election->update(['statut' => 'OUVERTE']);
 
-        // Autoriser les électeurs selon le type d'élection
-        $this->autoriserElecteurs($election);
-
         return response()->json([
             'message' => 'Élection ouverte avec succès',
             'election' => $election->load(['departement', 'createdBy'])
@@ -250,39 +252,6 @@ class ElectionController extends Controller
         ]);
     }
 
-    /**
-     * Autoriser les électeurs selon le type d'élection
-     *
-     * @param  \App\Models\Election  $election
-     * @return void
-     */
-    private function autoriserElecteurs(Election $election)
-    {
-        $now = Carbon::now();
-        $electeurs = [];
-
-        switch ($election->type_election) {
-            case 'CHEF_DEPARTEMENT':
-            case 'DIRECTEUR_UFR':
-                // Seuls les PER du département peuvent voter
-                $electeurs = User::where('type_personnel', 'PER')
-                    ->where('departement_id', $election->departement_id)
-                    ->get();
-                break;
-
-            case 'VICE_RECTEUR':
-                // Tous les PER et PATS peuvent voter
-                $electeurs = User::whereIn('type_personnel', ['PER', 'PATS'])->get();
-                break;
-        }
-
-        foreach ($electeurs as $electeur) {
-            ElecteurAutorise::create([
-                'election_id' => $election->id,
-                'electeur_id' => $electeur->id,
-                'a_vote' => false,
-                'date_autorisation' => $now,
-            ]);
-        }
-    }
+    // Les règles d'autorisation de vote sont maintenant gérées directement dans VoteController
+    // selon le type d'élection et le type d'utilisateur
 }

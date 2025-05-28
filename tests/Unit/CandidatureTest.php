@@ -14,7 +14,7 @@ class CandidatureTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_can_create_a_candidature()
     {
         $departement = Departement::create([
@@ -67,7 +67,7 @@ class CandidatureTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_has_election_relationship()
     {
         $departement = Departement::create([
@@ -117,7 +117,7 @@ class CandidatureTest extends TestCase
         $this->assertEquals('Élection Test', $candidature->election->titre);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_has_candidat_relationship()
     {
         $departement = Departement::create([
@@ -167,7 +167,7 @@ class CandidatureTest extends TestCase
         $this->assertEquals('John Doe', $candidature->candidat->nom_complet);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_can_filter_by_status_scopes()
     {
         $departement = Departement::create([

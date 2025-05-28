@@ -72,12 +72,12 @@ class Election extends Model
     }
 
     /**
-     * Relation avec les électeurs autorisés
+     * Relation avec les électeurs qui ont voté
      */
-    public function electeursAutorises()
+    public function electeurs()
     {
-        return $this->belongsToMany(User::class, 'electeurs_autorises', 'election_id', 'electeur_id')
-                    ->withPivot('a_vote', 'date_autorisation')
+        return $this->belongsToMany(User::class, 'votes', 'election_id', 'electeur_id')
+                    ->withPivot('vote_blanc', 'date_vote')
                     ->withTimestamps();
     }
 

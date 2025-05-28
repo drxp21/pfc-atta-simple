@@ -14,7 +14,7 @@ class CandidatureTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function per_user_can_submit_candidature()
     {
         $departement = Departement::create([
@@ -76,7 +76,7 @@ class CandidatureTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function pats_user_cannot_submit_candidature()
     {
         $departement = Departement::create([
@@ -119,7 +119,7 @@ class CandidatureTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function cannot_submit_candidature_to_closed_election()
     {
         $departement = Departement::create([
@@ -171,7 +171,7 @@ class CandidatureTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function admin_can_validate_candidature()
     {
         $departement = Departement::create([
@@ -243,7 +243,7 @@ class CandidatureTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function admin_can_reject_candidature()
     {
         $departement = Departement::create([

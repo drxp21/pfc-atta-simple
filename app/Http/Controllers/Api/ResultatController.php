@@ -80,7 +80,6 @@ class ResultatController extends Controller
         $nbElecteursInscrits = $this->getNbElecteursPotentiels($election);
         $nbVotesExprimes = Vote::where('election_id', $election->id)->count();
         $nbVotesBlancs = Vote::where('election_id', $election->id)->where('vote_blanc', true)->count();
-        $nbVotesValides = $nbVotesExprimes - $nbVotesBlancs;
 
         // Tableau pour stocker les résultats
         $resultats = [];
